@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎲 Classy Tic-Tac-Toe 🎲</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      /* Add a fun cartoon & Shinchan bg with a fallback (any background image) */
+      background: 
+        linear-gradient(135deg, #23252699 0%, #7146d9bb 100%),
+         center center no-repeat, /* Shinchan */
+        url('https://png.pngtree.com/png-clipart/20220719/ourmid/pngtree-happy-cartoon-game-background-png-image_6013033.png') center top repeat-x,
+        url('https://images.unsplash.com/photo-1465101162946-4377e57745c3?auto=format&fit=crop&w=800&q=80') center center / cover no-repeat; /* "Any" fallback image */
+      background-size: cover, 400px auto, 650px auto, cover;
+      background-blend-mode: normal, normal, lighten, normal;
+      background-repeat: no-repeat, no-repeat, repeat-x, no-repeat;
+      background-attachment: fixed, fixed, scroll, scroll;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 32px;
+      font-size: 2.5em;
+      letter-spacing: 3px;
+      user-select: none;
+      text-shadow: 2px 2px 8px #2226;
+    }
+    .level-select {
+      margin: 20px 0;
+      padding: 8px 25px;
+      border-radius: 25px;
+      font-size: 1.1em;
+      background: #fff3;
+      color: #fff;
+      border: none;
+      outline: none;
+      backdrop-filter: blur(3px);
+      cursor: pointer;
+      box-shadow: 0 3px 10px #1112;
+      transition: background 0.2s;
+    }
+    .level-select:focus, .level-select:hover {
+      background: #ffffff77;
+      color: #333;
+    }
+    #board {
+      background: rgba(255,255,255,0.08);
+      border-radius: 26px;
+      box-shadow: 0 4px 60px #0005;
+      display: grid;
+      grid-template-rows: repeat(3, 100px);
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      margin: 16px 0 8px 0;
+      padding: 22px;
+      position: relative;
+      user-select: none;
+      /* No image in box backgrounds, just semi-transparent for bg! */
+    }
+    .cell {
+      background: #ffe9f3c7;
+      border-radius: 18px;
+      font-size: 2.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #0006;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.2s;
+      color: #fff;
+      text-shadow: 1px 2px 12px #3513b566;
+      border: 2px solid #fff5;
+      min-height: 0;
+      min-width: 0;
+      /* No image in cell, keep background plain/colored */
+    }
+    .cell:hover {
+      transform: scale(1.06);
+      background: #a3b6fa99;
+      box-shadow: 0 4px 21px #8259e3c5;
+    }
+    .cell.winner {
+      background: #fff8;
+      color: #f90;
+      font-size: 3.5em;
+      text-shadow: 0 2px 20px #0f09c3;
+      animation: pulseWinner 0.5s .1s 7 alternate;
+    }
+    @keyframes pulseWinner {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.55); }
+    }
+    .info-panel {
+      margin: 1.5em 0 0.4em 0;
+      font-size: 1.3em;
+      padding: 9px 22px;
+      background: #4527a03d;
+      border-radius: 19px;
+      min-height: 44px;
+      min-width: 200px;
+      box-shadow: 0 3px 18px #20134e29;
+      letter-spacing: 0.3px;
+      text-align: center;
+      transition: color 0.16s;
+      font-weight: 500;
+    }
+    .emoji-anim {
+      animation: jumpEmo 0.75s cubic-bezier(.18,.89,.32,1.28) alternate 4;
+    }
+    @keyframes jumpEmo {
+      0% { transform: translateY(0);}
+      60% { transform: translateY(-16px);}
+      100% { transform: translateY(-7px);}
+    }
+    .scoreboard {
+      margin: 8px 0;
+      display: flex;
+      justify-content: center;
+      color: #d6bbff;
+      letter-spacing: 2px;
+      font-size: 1.15em;
+      gap: 27px;
+      background: #fff2;
+      padding: 7px 26px;
+      border-radius: 16px;
+    }
+    .reset-btn {
+      margin-top: 18px;
+      background: linear-gradient(92deg, #b4d1fc 0%, #a587ff 80%);
+      color: #412899;
+      border: none;
+      border-radius: 22px;
+      font-size: 1.22em;
+      padding: 10px 33px;
+      box-shadow: 0 2px 10px #352d7b39;
+      cursor: pointer;
+      font-weight: 600;
+      transition: box-shadow 0.14s, background 0.2s;
+    }
+    .reset-btn:hover {
+      box-shadow: 0 4px 22px #765fd275;
+      background: linear-gradient(92deg, #d2e3ff 10%, #6350c6 90%);
+      color: #fff;
+    }
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      color: #eee7;
+      font-size: 1em;
+      font-weight: 300;
+      padding: 16px 0 6px 0;
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 600px) {
+      #board {
+        grid-template-rows: repeat(3, 19vw);
+        grid-template-columns: repeat(3, 19vw);
+        min-width: 0 !important;
+        padding: 7vw 2vw;
+      }
+      .cell {
+        font-size: 7vw;
+        min-width: 0 !important;
+      }
+      body {
+        background-size: cover, 55vw auto, 400px auto, cover;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Classy Tic-Tac-Toe 🎲</h1>
+  <select id="level" class="level-select" title="Choose Difficulty">
+    <option value="easy">😺 Easy - Fun Bot</option>
+    <option value="medium">🦉 Medium - Strategic Bot</option>
+    <option value="hard">🤖 Hard - Unbeatable AI</option>
+    <option value="2p">👥 Two Players</option>
+  </select>
+  <div class="scoreboard" id="scoreboard">
+    <span id="score-x">❌: 0</span>
+    <span id="score-o">⭕: 0</span>
+    <span id="score-draw">🤝: 0</span>
+  </div>
+  <div id="board"></div>
+  <div class="info-panel" id="info">Let's play! 🎮</div>
+  <button class="reset-btn" id="reset">🔄 Play Again</button>
+  <div class="footer">
+    Made with <span class="emoji-anim">💜</span> <br>by AI powered request! <span style="font-size:1.25em">🐾</span>
+    <br>
+    <span style="font-size:1.45em;">Shinchan <span title="Crayon Shinchan">&#128519;</span></span>
+  </div>
+  <script>
+    // Emojis for X and O
+    const X_EMOJIS = ["❌","🦊","😸","🍩","🍕"];
+    const O_EMOJIS = ["⭕","🦉","🦄","🍦","🥚"];
+
+    const WIN_EMOJIS = ["🎉", "🏆", "⭐️", "🎊", "💫", "👏", "🥳"];
+    const DRAW_EMOJIS = ["🤝", "😐", "🍙", "😶", "🤔"];
+
+    let currentXEmoji = X_EMOJIS[0], currentOEmoji = O_EMOJIS[0];
+    let turn = "X";
+    let board = Array(9).fill("");
+    let gameOver = false;
+    let level = "easy";
+    let scores = {X: 0, O: 0, draw: 0};
+    let is2Player = false;
+
+    const boardElem = document.getElementById('board');
+    const info = document.getElementById('info');
+    const levelSelect = document.getElementById('level');
+    const resetBtn = document.getElementById('reset');
+    const scoreboard = document.getElementById('scoreboard');
+    const scoreXElem = document.getElementById('score-x');
+    const scoreOElem = document.getElementById('score-o');
+    const scoreDrawElem = document.getElementById('score-draw');
+
+    function shuffle(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function drawBoard() {
+      boardElem.innerHTML = "";
+      for (let i = 0; i < 9; ++i) {
+        let cell = document.createElement('div');
+        cell.className = "cell";
+        cell.dataset.idx = i;
+        if (board[i] === "X") cell.innerHTML = `<span>${currentXEmoji}</span>`;
+        else if (board[i] === "O") cell.innerHTML = `<span>${currentOEmoji}</span>`;
+        cell.addEventListener('click', handleCellClick);
+        boardElem.appendChild(cell);
+      }
+    }
+
+    function updateScoreboard() {
+      scoreXElem.textContent = `${currentXEmoji}: ${scores.X}`;
+      scoreOElem.textContent = `${currentOEmoji}: ${scores.O}`;
+      scoreDrawElem.textContent = `${DRAW_EMOJIS[0]}: ${scores.draw}`;
+    }
+
+    function showInfo(text, animateEmoji) {
+      info.innerHTML = text;
+      if (animateEmoji) {
+        let el = info.querySelector('span.emoji-anim');
+        if (el) {
+          el.classList.remove('emoji-anim');
+          void el.offsetWidth; // Reflow for animation restart.
+          el.classList.add('emoji-anim');
+        }
+      }
+    }
+
+    function checkWinner(bd=board) {
+      const wins = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      for (let arr of wins) {
+        const [a,b,c] = arr;
+        if (bd[a] && bd[a] === bd[b] && bd[b] === bd[c]) {
+          return {winner: bd[a], line: arr};
+        }
+      }
+      if (bd.every(v => v)) return {winner:"draw"};
+      return null;
+    }
+
+    function handleWinner(res) {
+      let text, animateEmo = false;
+      let cells = Array.from(boardElem.children);
+      if (res.winner === "X" || res.winner === "O") {
+        res.line.forEach(idx => cells[idx].classList.add("winner"));
+        let winnerEmo = res.winner === "X" ? currentXEmoji : currentOEmoji;
+        scores[res.winner]++;
+        updateScoreboard();
+        text = `<span class="emoji-anim">${shuffle(WIN_EMOJIS)}</span> <b>${winnerEmo}</b> wins!`;
+        animateEmo = true;
+      } else {
+        scores.draw++;
+        updateScoreboard();
+        text = `<span class="emoji-anim">${shuffle(DRAW_EMOJIS)}</span> It's a draw!`;
+        animateEmo = true;
+      }
+      showInfo(text, animateEmo);
+      gameOver = true;
+    }
+
+    function handleCellClick(e) {
+      if (gameOver) return;
+      let idx = +this.dataset.idx;
+      if (board[idx]) return;
+      board[idx] = turn;
+      drawBoard();
+      let result = checkWinner();
+      if (result) {
+        handleWinner(result);
+        return;
+      }
+      // Change emojis after every win/draw/play randomly
+      if (Math.random() < 0.26) {
+        currentXEmoji = shuffle(X_EMOJIS);
+        currentOEmoji = shuffle(O_EMOJIS);
+        updateScoreboard();
+      }
+      turn = turn === "X" ? "O" : "X";
+      if (is2Player) {
+        showInfo(`It's <b>${turn === "X" ? currentXEmoji : currentOEmoji}</b>'s turn.`);
+      } else if (turn === "O") {
+        setTimeout(botMove, 420 + Math.random()*500);
+      } else {
+        showInfo(`Your turn: <b>${currentXEmoji}</b>`);
+      }
+    }
+
+    function reset(newGame=false) {
+      board = Array(9).fill("");
+      gameOver = false;
+      turn = "X";
+      currentXEmoji = shuffle(X_EMOJIS);
+      currentOEmoji = shuffle(O_EMOJIS);
+      drawBoard();
+      if (!newGame) showInfo(`Let's play! <span class="emoji-anim">🎮</span>`, true);
+      else showInfo(`Your turn: <b>${currentXEmoji}</b>`);
+    }
+
+    resetBtn.onclick = () => reset();
+
+    function setLevel(lvl) {
+      level = lvl;
+      is2Player = lvl === "2p";
+      scores = {X: 0, O: 0, draw: 0};
+      updateScoreboard();
+      reset(true);
+    }
+    levelSelect.onchange = () => setLevel(levelSelect.value);
+
+    function emptyCells(bd) {
+      return bd.map((x,i) => x ? null : i).filter(i=>i!==null);
+    }
+
+    // AI for different levels
+
+    // Easy: random
+    function easyMove() {
+      let moves = emptyCells(board);
+      if (moves.length === 0) return;
+      let idx = shuffle(moves);
+      board[idx] = "O";
+    }
+    // Medium: prefers win/block/center/corner
+    function mediumMove() {
+      let moves = emptyCells(board);
+      const tryWinBlock = symb => {
+        for (let i of moves) {
+          board[i] = symb;
+          if (checkWinner()) { board[i] = "O"; return true; }
+          board[i] = "";
+        }
+        return false;
+      };
+      // Try to win
+      if (tryWinBlock("O")) return;
+      // Try to block
+      if (tryWinBlock("X")) return;
+      // Try center
+      if (board[4]==="") { board[4]="O"; return; }
+      // Try corners
+      let corners = [0,2,6,8].filter(i=>board[i]=="");
+      if (corners.length) { board[shuffle(corners)]="O"; return; }
+      // Else random
+      if (moves.length) board[shuffle(moves)] = "O";
+    }
+
+    // Hard: Minimax (unbeatable, O is bot)
+    function hardMove() {
+      let bestScore = -Infinity, move, bd = board.slice();
+      function minimax(bd, depth, isMax, alpha, beta) {
+        let res = checkWinner(bd);
+        if (res) {
+          if (res.winner==="O") return 10 - depth;
+          else if (res.winner==="X") return depth - 10;
+          else return 0;
+        }
+        let moves = emptyCells(bd);
+        if (isMax) {
+          let maxEval = -Infinity;
+          for (let i of moves) {
+            bd[i]="O";
+            let eval = minimax(bd, depth+1, false, alpha, beta);
+            bd[i]="";
+            maxEval = Math.max(maxEval, eval);
+            alpha = Math.max(alpha, eval);
+            if (beta <= alpha) break;
+          }
+          return maxEval;
+        } else {
+          let minEval = Infinity;
+          for (let i of moves) {
+            bd[i]="X";
+            let eval = minimax(bd, depth+1, true, alpha, beta);
+            bd[i]="";
+            minEval = Math.min(minEval, eval);
+            beta = Math.min(beta, eval);
+            if (beta <= alpha) break;
+          }
+          return minEval;
+        }
+      }
+      for (let i of emptyCells(bd)) {
+        bd[i]="O";
+        let val = minimax(bd,0,false, -Infinity,Infinity);
+        bd[i]="";
+        if (val > bestScore) { bestScore = val; move = i; }
+      }
+      if (move!==undefined) board[move]="O";
+    }
+
+    function botMove() {
+      if (gameOver) return;
+      let prev = board.slice();
+      if (level==="easy")      easyMove();
+      else if (level==="medium") mediumMove();
+      else if (level==="hard")   hardMove();
+      drawBoard();
+      let result = checkWinner();
+      if (result) handleWinner(result);
+      else showInfo(`Your turn: <b>${currentXEmoji}</b>`);
+      turn = "X";
+    }
+
+    // INIT
+    setLevel("easy");
+
+    // Make random emoji for board after each game
+    function afterGameShuffleEmojis() {
+      currentXEmoji = shuffle(X_EMOJIS);
+      currentOEmoji = shuffle(O_EMOJIS);
+    }
+
+    // Support mobile: board size on SSR
+    (function setMinWidth() {
+      boardElem.style.minWidth = '336px';
+    })();
+
+  </script>
+</body>
+</html>
+
+
+
+
